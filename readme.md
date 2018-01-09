@@ -12,7 +12,7 @@ The parameters can be provided either in vault-unseal.json:
 
 ```json
 {
-  "ADDRESS_URL" : "https://vault.test.bat.nz",
+  "VAULT_URL" : "https://vault.test.bat.nz",
   "TIME_INTERVAL_SECONDS" : 10,
   "UNSEAL_KEY_1" : "mYxh8zruCmImx46Ccmqc9PWWh+Nuu/jPfxq7SPxtBesX",
   "UNSEAL_KEY_2" : "ewxM9/2rjvXviLHSaGv35XpEoNAHCmq7KcWHb4jDueOb",
@@ -24,7 +24,7 @@ The parameters can be provided either in vault-unseal.json:
 
 Or then can be provided as environment variables with `VU_` prefix:
 
-- VU_ADDRESS_URL=https://vault.test.bat.nz
+- VU_VAULT_URL=https://vault.test.bat.nz
 - VU_TIME_INTERVAL_SECONDS=10
 - VU_UNSEAL_KEY_1=mYxh8zruCmImx46Ccmqc9PWWh+Nuu/jPfxq7SPxtBesX
 - VU_UNSEAL_KEY_2=ewxM9/2rjvXviLHSaGv35XpEoNAHCmq7KcWHb4jDueOb
@@ -36,16 +36,15 @@ To build the docker container run in the docker subfolder of this repo:
 
 ```bash
 docker build --no-cache -t andrewsav/vault-unseal .
-docker push andrewsav/vault-unseal
 ```
 
 To run the container, either use docker-compose.yml from this repo (edit it first), or run from command line:
 
 ```
-docker run --name vault-unseal -dt -e VU_ADDRESS_URL=https://vault.test.bat.nz ... etc ... andrewsav/vault-unseal
+docker run --name vault-unseal -dt -e VU_VAULT_URL=https://vault.test.bat.nz ... etc ... andrewsav/vault-unseal
 ```
 
-Make sure to put the rest of `-e` parameters in.
+Make sure to put the rest of `-e` parameters in. To make it less unwieldy you can use `docker-compose.yml` sample proived to start the container with docker-compose.
 
 ## Goldfish
 
@@ -73,7 +72,7 @@ path "auth/approle/role/goldfish/secret-id" {
 }
 ```
 
-You can write it to vault with `vault policy-write goldfishapp goldfishapp.hcl` where `goldfishapp.hcl` is the file name with your policy. Here is how you can create 
+You can write it to vault with `vault policy-write goldfishapp goldfishapp.hcl` where `goldfishapp.hcl` is the file name with your policy. Here is how you can create the requried approle:
 
 ```
 vault write auth/approle/role/goldfishapp token_ttl=5m token_max_ttl=5m policies=goldfishapp # consider using bound_cidr_list=1.1.1.1
@@ -99,7 +98,7 @@ One way of doing this is using [vault](https://hub.docker.com/_/vault/) and [gol
 for TLS certificates via [Let's Encrypt](https://letsencrypt.org) integration. If you have a domain name that you can point to your test machine ip,
 you can set this up by using [this repo](https://github.com/AndrewSav/test-vault).
 
-Prepare a `settings.sh` file similar to [this one](https://github.com/AndrewSav/test-vault/blob/master/settings.sh.template) (you don't require EMAIL in it). 
+Prepare a `settings.sh` file similar to [this one](https://github.com/AndrewSav/test-vault/blob/master/settings.sh.template) (you don't require `EMAIL` in it). 
 You might want to review the body of the `example-init.sh` to make sure that initialization and setup of vault and goldfish is done for you liking. 
 For goldfish recommended parameters are used and for vault, it's initialized with 5 keys and 3 shares.
 
@@ -107,3 +106,4 @@ The script then generate `example-init.json` that can be used as `vault-unseal.j
 
 Once you've got generated `vault-unseal.json` you can use it to test your new installation with the Automatic unseal/bootstrap script.
 
+In addition the example script generates a `docker-compose-example.yml` that you can use for using `docker-compose` to bring up the container with the unseal/bootstrap script.

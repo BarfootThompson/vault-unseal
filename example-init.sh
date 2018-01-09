@@ -151,5 +151,31 @@ EOF
 EOF
 } > example-init.json
 
+N=0
+
+{
+  cat <<- EOF
+version: '2'
+services:
+  vault-unseal:
+    image: andrewsav/vault-unseal
+    tty: true
+    environment:
+      #- VU_DEBUG=1
+      - VU_VAULT_URL=https://$VAULT
+      - VU_TIME_INTERVAL_SECONDS=10
+EOF
+
+  for KEY in $KEYS; do
+    printf '      - VU_UNSEAL_KEY_%u=%s\n' $[++N] "$KEY"
+  done
+
+  cat <<- EOF
+      - VU_GOLDFISH_URL=https://$GOLDFISH
+      - VU_GOLDFISH_ID=$GOLDFISH_ID
+      - VU_GOLDFISH_SECRET=$GOLDFISH_SECRET
+EOF
+} > docker-compose-example.yml
+
 #cat example-init.json
 #curl ${CURL_OPT} --header "X-Vault-Wrap-TTL: 20" -X POST ${VAULT_ADDR}/v1/auth/approle/role/goldfish/secret-id
